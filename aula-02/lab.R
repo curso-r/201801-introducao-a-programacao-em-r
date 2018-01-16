@@ -166,3 +166,7 @@ songs %>% inner_join(artists, by = "name")
 songs %>% semi_join(artists, by = "name")
 
 songs %>% anti_join(artists, by = "name")
+
+# ler dados ---------------------------------------------------------------
+
+library(readr)
