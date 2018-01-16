@@ -1,0 +1,39 @@
+---
+title: "manipulacao-de-dados"
+output: html_document
+---
+
+1) Qual é a definição de `tidy` data (dados arrumadinhos?)
+
+
+2) Transforme o banco de dados `who` em um versão `tidy` usando
+as funções `gather`, `separate` e `spread`. Não esqueça de descobrir
+o que as colunas significam usando `help(who)`.
+
+```{r}
+library(tidyr)
+who_tidy <- who %>%
+  gather(________, _________, ___________) %>%
+  separate(________, _________, __________) %>%
+  spread(__________, _________, _________)
+```
+
+3) Transforme o banco de dados `population` em um banco de dados
+`tidy`. 
+
+```{r}
+population <- EDAWR::population
+View(population)
+help(population)
+```
+
+4) Usando o banco population tidy criado no exercício anterior, calcule
+a população total por ano no mundo. Use `dplyr`.
+
+```{r}
+
+```
+
+
+
+
