@@ -59,5 +59,43 @@ Dica: Função `ifelse` ou função `coalesce`.
 8) Ainda usando a tabela `tb`, crie uma tabela contenha apenas as informações do Brasil a partir de 2000.
 
 
-9) A partir da tabela anterior, crie uma tabela com as seguintes colunas:
-`country`, `year`, `child`, `adult`, `elderly` e `total` (população total).
+9) A partir da tabela `tb` crie uma tabela com as seguintes colunas:
+`country`, `year`, `child`, `adult`, `elderly` e `total` (população total). 
+
+10) Entenda a relação entre as tabelas disponíveis no pacote `nycflights13`.
+
+```{r}
+library(nycflights13)
+?flights
+?airlines
+?airports
+?planes
+?weather
+```
+
+11) Calcule o tempo médio e mediano de atraso por mês. Qual é o mês com
+maior tempo médio de atraso? Ordene a tabela em ordem decrescente do
+tempo de atraso.
+
+**Faz sentido considerar os zeros na conta?**
+
+12) Qual é o mês com maior porcentagem de voos atrasados?
+
+13) Quais são as companhias maior porcentagem de vôos atrasados? Busque
+o nome completo da companhia.
+
+14) Use a função `ntile` para criar grupos 5 grupos de distância. 
+Em seguida faça uma tabela exibindo a distancia mínima e máxima, e a quantidade
+de voos em cada grupo.
+
+15) Qual é a taxa de atraso e o atraso médio por aeroporto de destino.
+
+
+
+
+
+
+
+
+
+
