@@ -34,6 +34,30 @@ a população total por ano no mundo. Use `dplyr`.
 
 ```
 
+5) Calcule a taxa de crescimento da população de um ano para o outro (pop_i/pop_(i-1)).
+Dica: função `lag`.
+
+```{r}
+help(lag)
+```
+
+6) DIFÍCIL: Calcule a taxa de crescimento ano a ano por país. 
+Dica: `group_by` + `mutate` também funcionam.
+
+```{r}
+
+```
+
+7) Na tabela `tb`, algumas informações são `NA`. Substitua `NA` por zero.
+Dica: Função `ifelse` ou função `coalesce`.
+
+```{r}
+?tb
+```
 
 
+8) Ainda usando a tabela `tb`, crie uma tabela contenha apenas as informações do Brasil a partir de 2000.
 
+
+9) A partir da tabela anterior, crie uma tabela com as seguintes colunas:
+`country`, `year`, `child`, `adult`, `elderly` e `total` (população total).
