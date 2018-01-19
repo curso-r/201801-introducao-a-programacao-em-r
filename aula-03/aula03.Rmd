@@ -1,6 +1,6 @@
 ---
 title: "Aula 3"
-author: "Milene Farhat"
+author: "Milene Farhat
 date: "January 17, 2018"
 output: html_document
 ---
@@ -46,6 +46,10 @@ mpg %>%
 
 ## Por que utilizar o ggplot2 ?
 
+```{r}
+plot(x = mpg$displ, y = mpg$hwy, main = 'Dados de economia de combustível para 38 modelos populares de carro', xlab = 'Tamanho do Motor', ylab = 'Eficiência de Combustível (na estrada)')
+```
+
 - a construção é intuitiva e organizada.
 - a estrutura é a mesma para todo tipo de gráfico.
 - são naturalmente mais bonitos!
@@ -54,28 +58,33 @@ mpg %>%
 
 ### Construindo e modificando um gráfico
 
-- camada estrutual
-- camada dos pontos
-- aesthetics
+- camada estrutual.
+- camada dos pontos.
+- camadas adicionadas pelo símbolo '+'.
+- aesthetics.
 
 ```{r}
 # gráfico de dispersão
 
 mpg %>% 
   ggplot() +
-  geom_point(mapping = aes(x = displ, y = hwy, size = cyl))
+  geom_point(mapping = aes(x = displ, y = hwy))
 
 # color = cty
 # size = cyl
 # shape 
 
-# as.factor()
-mpg$cyl
-class(mpg$cyl)
+# geom_line()
 
-cyl_asfactor = as.factor(mpg$cyl)
-class(cyl_asfactor)
-table(cyl_asfactor)
+# color = cyl
+# color = fl
+```
+
+
+- as.factor().
+
+```{r}
+# as.factor()
 
 mons = c("March","April","January","November","January", "September", "October", "September", "November", "August", "January", "November", "November", "February", "May", "August", "July", "December", "August", "August", "September", "November", "February", "April")
 class(mons)
@@ -83,22 +92,12 @@ class(mons)
 mons = as.factor(mons)
 class(mons)
 table(mons)
-
----------------------------------------------------------------------------------------------
-
-mpg %>% 
-  ggplot(mapping = aes(x = displ, y = hwy)) +
-  geom_point()
-
-# color
-# size
-# shape 
 ```
 
 Factors in R are stored as a vector of integer values with a corresponding set of character values to use when the factor is displayed. (fonte: https://www.stat.berkeley.edu/classes/s133/factors.html)
 
 
-Gŕafico de dispersão de displ por hwy, filtrando pela classe de carros pequenos. (compact, midsize, subcompact)
+Gŕafico de dispersão de displ por hwy, filtrando pela classe de carros médios ('compact', 'midsize', 'subcompact') e identificando-os no gráfico.
 
 ```{r}
 
@@ -119,13 +118,19 @@ dados <- readRDS("dados_imdb.rds")
 dados
 ```
 
-1. Observe a relação entre a arrecadação(gross) e orçamento(budget) dos filmes.
+1. Observe a relação entre orçamento(budget) e a arrecadação(gross) dos filmes.
 
 ```{r}
 
 ```
 
-2. Filtrando apenas por filmes norte-americanos, observe se a relação entre arrecadação e orçamento mudou ao longo dos anos.
+2. Como verifica o valor discrepante?
+
+```{r}
+
+```
+
+3. Filtrando apenas por filmes norte-americanos, observe se a relação entre arrecadação e orçamento mudou ao longo dos anos.
 
 ```{r}
 
@@ -149,7 +154,7 @@ Utilizando a mesma estrutura do gráfico de dispersão, é possível montar os d
 
 ```{r}
 ggplot(mtcars) +
-  geom_boxplot(aes(x = as.factor(cyl), y = mpg))
+  geom_boxplot(aes(x = as.factor(cyl), y = mpg), color = 'red', fill = 'pink')
 
 ggplot(mtcars) +
   geom_bar(aes(x = as.factor(am)))
@@ -171,14 +176,14 @@ mtcars %>%
 
 # G1 + G2
 mtcars %>% 
-  ggplot() + 
-  geom_point(aes(y = mpg, x = disp)) +
-  geom_smooth(aes(y = mpg, x = disp))
+  ggplot(aes(y = mpg, x = disp)) + 
+  geom_point() +
+  geom_smooth()
 ```
 
 *Exercício*
 
-Usando a base 'dados', faça um gráfico do `imb_score` por ano, apenas para o diretor Steven Spielberg, e "ligue os pontos".
+Usando a base 'dados', faça um gráfico do `imdb_score` por ano, apenas para o diretor Steven Spielberg, e "ligue os pontos".
 
 ```{r}
 
@@ -201,20 +206,26 @@ Quais os países produtores dos filmes?
 dados %>% 
   ggplot() +
   geom_bar(mapping = aes(x = country))
+```
 
 
-dados %>% count(country, sort = T)
+Quais são os 10 paises que mais produziram filmes?
 
+```{r}
+dados %>% 
+  count(country, sort = TRUE)
 
 # fct_other
 dados %>%
+  na.omit() %>% 
   mutate(country = fct_other(country, keep = 
                                c('USA', 'UK', 'France', 'Canada', 'Germany', 
                                  'Australia', 'India', 'Spain', 'China', 'Italy'), 
                              other_level = 'Outros')) %>% 
-  na.omit() %>% 
   ggplot() +
   geom_bar(mapping = aes(x = country))
+
+# drop com dados1
 ```
 
 
@@ -230,9 +241,9 @@ dados %>%
 
 dados %>%
   na.omit() %>% 
-  mutate(content_rating = fct_collapse(content_rating, Outros = 
-                                         c("Approved", "G", "GP", "Passed", 
-                                           "TV-14", "TV-G", "TV-MA", "TV-PG", "TV-Y7", "X"))) %>%
+  mutate(content_rating = fct_collapse(content_rating, Abacaxi = 
+                                      c("Approved", "G", "GP", "Passed", 
+                                      "TV-14", "TV-G", "TV-MA", "TV-PG", "TV-Y7", "X"))) %>%
   ggplot() +
   geom_bar(mapping = aes(x = content_rating))
 ```
@@ -247,6 +258,8 @@ dados %>%
 
 ```{r}
 # fct_reorder
+# variáveis categóricas
+
 dados %>% 
   count(director_name, sort = T) %>% 
   na.omit() %>% 
@@ -262,6 +275,8 @@ dados %>%
 
 ### facets
 
+- bom para comparações das categorias.
+
 Eficiência de disp por milhas/galão para carros automáticos e manuais.
 
 ```{r}
@@ -276,7 +291,7 @@ mtcars %>%
 
 *Exercício*
 
-Comparar as notas `imb_score` do Tarantino, Scorsese e Tim Burton ao longo do tempo.
+Comparar as notas `imdb_score` do Tarantino, Scorsese e Tim Burton ao longo do tempo.
 
 ```{r}
 
@@ -323,7 +338,7 @@ Personalize o gráfico das notas `imb_score` do Tarantino, Scorsese e Tim Burton
 dados %>% 
   dplyr::filter(director_name %in% c("Quentin Tarantino", "Martin Scorsese", "Tim Burton")) %>% 
   ggplot() +
-  geom_point(aes(x = title_year, y = imdb_score, color = director_name))
+  geom_line(aes(x = title_year, y = imdb_score, color = director_name))
 ```
 
 
