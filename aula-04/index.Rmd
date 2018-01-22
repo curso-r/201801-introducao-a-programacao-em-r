@@ -718,7 +718,7 @@ fuso horário no qual estamos. Mas se convertermos essa pseudo-string para
 as.integer(now())
 ```
 
-.footnote[[*] Ele era atual quando eu fiz os slies...]
+.footnote[[*] Ele era atual quando eu fiz os slides...]
 
 
 
