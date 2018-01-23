@@ -5,7 +5,7 @@
 ### AUTOR: Caio Lente + Curso-R                                                  ###
 ####################################################################################
 
-
+fds
 
 ### PREPARAÇÃO #####################################################################
 
@@ -22,14 +22,23 @@ library(lubridate)
 
 # 06.1: Rode a função `class()` em uma string. O que ela realmente é?
 
+minha_string <- "O céu é azul"
+class(minha_string)
 
 # 07.1: Verifique as diferenças entre o comportamento entre `print()` e `cat()`.
 
+
+cat("Meu nome é \"Caio Lente\"")
+print("Meu nome é \"Caio Lente\"")
 
 # 10.1: Crie um vetor que carrega dois pequenos textos. Cada texto deve ter dois
 # parágrafos cada e cada parágrafo deve ter pelo menos 3 linhas. Cada parágrafo deve
 # começar com uma tabulação e nenhuma linha pode passar de 80 caracteres. Pelo menos
 # um dos textos deve ter uma citação.
+
+strings <- c("",
+             "")
+
 
 
 ### MEXER COM STRINGS É FÁCIL ------------------------------------------------------
@@ -46,12 +55,13 @@ library(lubridate)
 # 14.2: Teste `str_sub()` dando valor só para `start` ou só para `end`. O que
 # acontece se passarmos números negativos para ambos os parâmetros?
 
-str_sub(c("__SP__", "__MG__", "__RJ__"), start = 3, end = 4)
+str_sub(c("__SP__", "__MG__", "__RJ__"), start = -4, end = -3)
 
 
 # 15.1: E se passássemos uma variável numérica para essa função?
 
-str_c("O valor p é: ", "0.03")
+v <- 0.03
+str_c("O valor p é: ", v)
 
 
 # 15.2: Use o argumento `sep` para remover a repetição de espaços. Use o
@@ -59,13 +69,19 @@ str_c("O valor p é: ", "0.03")
 
 s1 <- c("O R", "O Java")
 s2 <- c("bom", "ruim")
-str_c(s1, " é muito ", s2)
+str_c(s1, "é muito", s2, sep = " ", collapse = " e ")
 
 
 # 16.1: Partindo do vetor de strigs `vs`, obtenha o texto `s`:
 
 vs <- c("***O número   " , "de caRACTeres", "   nEste TexTO", "é")
 s <- "o número de caracteres neste texto é 36"
+
+vs1 <- str_to_lower(vs)
+vs2 <- str_trim(vs1)
+vs3 <- str_c(vs2, collapse = " ")
+vs4 <- str_sub(vs3, start = 4)
+vs5 <- str_c(vs4, str_length(vs4), sep = " ")
 
 
 ### REGEX --------------------------------------------------------------------------
@@ -74,14 +90,14 @@ s <- "o número de caracteres neste texto é 36"
 # expressão dê match com qualquer string que tenha como segunda letra um
 # `a` minúsculo.
 
-str_detect(c("banana", "BANANA", "maca", "nona"), pattern = "na")
+str_detect(c("banana", "BANANA", "maca", "nona"), pattern = "^...a")
 
 
 # 19.1: Como faríamos para dar match em um padrão já escapado (como "\\.")?
 # Dê match em um caractere de nova linha e em um caractere de tabulação.
 
 s <- "a\\t\\na"
-
+str_detect(s, "\\\\t")
 
 # 22.1: Dado o corpus presente em `stringr::words`, crie expressões regulares que
 # casem com as palavras que:
@@ -90,7 +106,9 @@ s <- "a\\t\\na"
 # - Têm 3 ou mais vogais em sequência
 # - Têm duas ou mais ocorrências onde uma vogal precede uma consoante
 
-stringr::words
+str_view(stringr::words, pattern = "^[^aeiouAEIOU]{3}", match = TRUE)
+str_view(stringr::words, pattern = "[aeiouAEIOU]{3,}", match = TRUE)
+str_view(stringr::words, pattern = "([aeiouAEIOU][^aeiouAEIOU]){2,}", match = TRUE)
 
 
 ### MEXER COM STRINGS É DIFÍCIL ----------------------------------------------------
@@ -99,19 +117,29 @@ stringr::words
 # `544.916.518-84`.
 
 num <- c(54491651884, 12345678901, 10932478919)
+str_replace(num, pattern = "([0-9]{3})([0-9]{3})([0-9]{3})([0-9]{2})",
+            replacement = "\\1.\\2.\\3-\\4")
 
 
 # 28.1: O que acontece quando quebramos as strings do vetor `pessoas` em
 # todas as letras (usando `str_match_all()`)?
 
 pessoas <- c("Silva, João", "Lima, Joana", "Madonna")
+str_match_all(pessoas, "[:alpha:]")
 
 
 # 30.1: Partindo de `stringr::sentences`, crie o vetor `no_the`, onde todas as
 # ocorrências da palavra "the" (ou "The") são removidas (mas tendo em mente que
 # as frases devem continuar começando com letra maiúscula)
 
-stringr::sentences
+stringr::sentences %>%
+  str_replace_all(pattern = "[Tt]he ?", replacement = "") %>%
+  dplyr::tibble(sentence = .) %>% 
+  dplyr::mutate(
+    first = str_extract(sentence, "^[:alpha:]"),
+    first = str_to_upper(first),
+    sentence = str_replace(sentence, "^[:alpha:]", first)) %>%
+  dplyr::pull(sentence)
 
 
 
@@ -149,6 +177,7 @@ now() + 2592000
 
 t1 <- dmy_hms("01/06/2015 12:00:00", tz = "America/New_York")
 t2 <- dmy_hms("01/06/2015 13:00:00", tz = "America/Sao_Paulo")
+c(t1, t2)
 
 
 # 40.2: Dê uma olhada na lista de fusos presentes em `OlsonNames()`.
@@ -160,6 +189,9 @@ t2 <- dmy_hms("01/06/2015 13:00:00", tz = "America/Sao_Paulo")
 
 vt <- c("2015", "31", "03", "02", "59")
 t <- ymd_hm("2015-03-31 02:59")
+
+make_datetime(vt[1], vt[3], vt[2], vt[4], vt[5])
+ydm_hm(str_c(vt, collapse = "-"))
 
 
 ### MEXER COM DATAS É FÁCIL --------------------------------------------------------
@@ -187,6 +219,10 @@ dt <- ymd_hms("2016-07-08 12:34:56")
 # Lakers (`team == "LAL"`) demora para arremessar a primeira bola (`etype == "shot"`)
 # no primeiro período (`period == 1`).
 
-lubridate::lakers
-
-
+lakers %>% 
+  dplyr::filter(etype == "shot", period == 1, team == "LAL") %>% 
+  dplyr::mutate(time = as.duration(ms(time))) %>%
+  dplyr::group_by(date) %>%
+  dplyr::summarise(first = min(time)) %>%
+  dplyr::pull(first) %>%
+  mean()

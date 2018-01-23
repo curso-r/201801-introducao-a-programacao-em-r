@@ -1,7 +1,7 @@
 ---
 title: "Aula 3"
 author: "Milene Farhat
-date: "January 17, 2018"
+date: "January 19, 2018"
 output: html_document
 ---
 
@@ -17,6 +17,7 @@ output: html_document
 
 ```{r}
 library(tidyverse)
+library(forcats)
 ```
 
 ```{r, echo=FALSE}
@@ -68,7 +69,7 @@ plot(x = mpg$displ, y = mpg$hwy, main = 'Dados de economia de combustível para 
 
 mpg %>% 
   ggplot() +
-  geom_point(mapping = aes(x = displ, y = hwy))
+  geom_point(mapping = aes(x = displ, y = hwy, color = as.factor(cyl)))
 
 # color = cty
 # size = cyl
@@ -100,13 +101,18 @@ Factors in R are stored as a vector of integer values with a corresponding set o
 Gŕafico de dispersão de displ por hwy, filtrando pela classe de carros médios ('compact', 'midsize', 'subcompact') e identificando-os no gráfico.
 
 ```{r}
-
+mpg %>% 
+  filter(class == c('compact', 'midsize', 'subcompact')) %>% 
+  ggplot() +
+  geom_point(aes(x = displ, y = hwy, color = class))
 ```
 
 Verificando valor discrepante.
 
 ```{r}
-
+mpg %>% 
+  filter(class == 'subcompact') %>% 
+  filter(hwy > 43)
 ```
 
 *Exercício*
@@ -121,19 +127,25 @@ dados
 1. Observe a relação entre orçamento(budget) e a arrecadação(gross) dos filmes.
 
 ```{r}
-
+dados %>% 
+  ggplot() +
+  geom_point(aes(x = budget, y = gross))
 ```
 
 2. Como verifica o valor discrepante?
 
 ```{r}
-
+dados %>% 
+  filter(budget > 2.0e+09)
 ```
 
 3. Filtrando apenas por filmes norte-americanos, observe se a relação entre arrecadação e orçamento mudou ao longo dos anos.
 
 ```{r}
-
+dados %>% 
+  filter(country == 'USA') %>% 
+  ggplot()+
+  geom_point(aes(x = budget, y = gross, color = title_year))
 ```
 
 
@@ -157,8 +169,7 @@ ggplot(mtcars) +
   geom_boxplot(aes(x = as.factor(cyl), y = mpg), color = 'red', fill = 'pink')
 
 ggplot(mtcars) +
-  geom_bar(aes(x = as.factor(am)))
-# fill = as.factor(cyl)
+  geom_bar(aes(x = as.factor(am), fill = as.factor(cyl)))
 ```
 
 E é possível adicionar mais de uma forma geom no mesmo gráfico:
@@ -186,7 +197,11 @@ mtcars %>%
 Usando a base 'dados', faça um gráfico do `imdb_score` por ano, apenas para o diretor Steven Spielberg, e "ligue os pontos".
 
 ```{r}
-
+dados %>% 
+ filter(director_name == 'Steven Spielberg')%>%
+ ggplot(aes(x = title_year, y = imdb_score))+
+  geom_point()+
+  geom_line()
 ```
 
 
@@ -212,16 +227,18 @@ dados %>%
 Quais são os 10 paises que mais produziram filmes?
 
 ```{r}
-dados %>% 
-  count(country, sort = TRUE)
+dados1 <- dados %>% 
+  count(country, sort = TRUE) %>% 
+  filter(n < 23)
 
 # fct_other
 dados %>%
   na.omit() %>% 
-  mutate(country = fct_other(country, keep = 
-                               c('USA', 'UK', 'France', 'Canada', 'Germany', 
-                                 'Australia', 'India', 'Spain', 'China', 'Italy'), 
-                             other_level = 'Outros')) %>% 
+  
+  mutate(country = fct_infreq(country, ordered = TRUE)) %>%
+  
+  mutate(country = fct_other(country, drop = dados1$country, other_level = 'Outros')) %>% 
+  
   ggplot() +
   geom_bar(mapping = aes(x = country))
 
@@ -241,9 +258,12 @@ dados %>%
 
 dados %>%
   na.omit() %>% 
-  mutate(content_rating = fct_collapse(content_rating, Abacaxi = 
-                                      c("Approved", "G", "GP", "Passed", 
-                                      "TV-14", "TV-G", "TV-MA", "TV-PG", "TV-Y7", "X"))) %>%
+  
+    mutate(content_rating = fct_infreq(content_rating, ordered = TRUE)) %>% 
+  
+    mutate(content_rating = fct_collapse(content_rating, Abacaxi = c("Approved", "G", "GP", "Passed","TV-14", "TV-G", "TV-MA", "TV-PG", "TV-Y7", "X"), Chocolate = c('M', 'NC-17', 'Unrated'))) %>%
+
+  
   ggplot() +
   geom_bar(mapping = aes(x = content_rating))
 ```
@@ -265,10 +285,10 @@ dados %>%
   na.omit() %>% 
   head(8) %>%
   mutate(director_name = fct_reorder(director_name, n, fun = max, .desc = T)) %>% 
-  na.omit() %>% 
+  
   ggplot() +
   geom_bar(mapping = aes(x = director_name, y = n), stat = "identity") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
 
@@ -281,9 +301,9 @@ Eficiência de disp por milhas/galão para carros automáticos e manuais.
 
 ```{r}
 mtcars %>% 
-  ggplot(aes(y = mpg, x = disp)) + 
-  geom_point() +
-  facet_grid(~ am) # vertical
+  ggplot() + 
+  geom_point(aes(y = mpg, x = disp)) +
+  facet_grid( vs ~ am ) # vertical
 
 # facet_grid(am ~.) horizontal
 # facet_grid(vs ~ am)
@@ -294,7 +314,11 @@ mtcars %>%
 Comparar as notas `imdb_score` do Tarantino, Scorsese e Tim Burton ao longo do tempo.
 
 ```{r}
-
+dados %>% 
+  filter(director_name %in% c('Quentin Tarantino', 'Martin Scorsese', 'Tim Burton')) %>% 
+  ggplot() +
+  geom_point(aes(x = title_year, y = imdb_score)) +
+  facet_grid(~director_name)
 ```
 
 
@@ -308,9 +332,10 @@ ggplot(mtcars) +
   geom_bar(aes(x = as.factor(am), fill = as.factor(cyl))) +
   xlab("Transmission") +
   ylab("Frequency") +
-  ggtitle("Mtcars plot", subtitle = "R base dataset") 
- 
-#  xlim(c(0,5))
+  ggtitle("Mtcars plot", subtitle = "R base dataset") +
+  ylim(c(0,35))
+
+#   xlim(c(0,5))
 #  ylim(c(0,35))
 ```
 
@@ -322,9 +347,11 @@ ggplot(mtcars) +
   xlab("Transmission") +
   ylab("Frequency") +
   ggtitle("Mtcars plot", subtitle = "R base dataset") +
-  theme(legend.position = "bottom") + 
+  theme(legend.position = "right") + 
   scale_fill_discrete(name = "Cyl",
-                      labels = c("4 ", "6 ", "8 "))
+              labels = c("4___ ", "6___ ", "8___ ")) +
+  theme_minimal()
+
 # theme_bw()
 # theme_minimal
 ```
@@ -338,7 +365,11 @@ Personalize o gráfico das notas `imb_score` do Tarantino, Scorsese e Tim Burton
 dados %>% 
   dplyr::filter(director_name %in% c("Quentin Tarantino", "Martin Scorsese", "Tim Burton")) %>% 
   ggplot() +
-  geom_line(aes(x = title_year, y = imdb_score, color = director_name))
+  geom_line(aes(x = title_year, y = imdb_score, color = as.factor(director_name))) +
+  xlab("Year") +
+  ylab("Score") +
+  ggtitle("IMDB Score", subtitle = "1916 to 2016") +
+  scale_color_discrete(name = "Directors")
 ```
 
 
@@ -347,11 +378,9 @@ Obrigada!!
 
 
 *Exercícios extras*
-
 # Exercício 1
 
 Faça um histograma das notas do imdb do Ridley Scott.
- 
 Passo a passo:
 
 1. Pesquise qual `geom_` deve ser utilizado para construir histogramas.

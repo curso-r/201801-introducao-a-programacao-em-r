@@ -58,6 +58,27 @@ tipos de dados
 - Ambos foram idealizados por ~~um anjo que roubou meu coração~~ Hadley Wickham
 
 
+```{r}
+library(lubridate)
+library(stringr)
+library(dplyr)
+dados <- data.frame(nome = c("Athos", "Daniel", "William"),
+                    local = c("São Paulo - SP", "sao paulo-sp", "sp - SP - Brasil"),
+                    dt_vcto = ymd(c("2017-01-01", "2018-01-21", "2017-12-25")),
+                    dt_pgto = ymd(c("2017-01-12", NA, "2018-01-22"))) 
+
+
+dados
+
+dados %>%
+  mutate(dias_em_atraso = difftime(dt_vcto, dt_pgto, units = "days") %>% as.numeric,
+         uf = local %>% 
+           str_extract("- ?[:alpha:]{2} ?([-]|$)") %>%
+           str_extract("[:alpha:]{2}") %>%
+           str_to_upper)
+dados
+
+```
 
 
 ---
@@ -102,6 +123,9 @@ minha_segunda_string
 
 **EX:** Rode a função `class()` em uma string. O que ela realmente é?
 
+```{r}
+
+```
 
 
 ---
@@ -174,7 +198,8 @@ que cada posição de uma string corresponde a um caractere! Já no R,
 `character` é uma **classe atômica** e então isso não acontece.
 
 ```{r}
-c("Um", "vetor", "de", "strings")[4]
+c("Um", "vetor", "de", "strings")[2]
+"Um"[2]
 ```
 
 --
@@ -218,6 +243,11 @@ textos deve ter uma citação.
 inferior do RStudio. Escreva cada linha separadamente e depois junte-as com caracteres
 especiais.d
 
+```{r}
+strings <- c("\tldkfnglkdfgldfjgldfjgldfjgldj\nfgldkfjgldfjgl\ndkjfglkdjglkdjfglkdjfglkdjfgljdflgkj\n\n\n\n",
+"\tHavia uma pedra no meio do caminho\nNo meio do caminho havia uma pedra\nEu não conheço esse poema direito")
+cat(strings)
+```
 
 
 ---
@@ -249,13 +279,22 @@ em uma string. Como todas as funções do `stringr` são vetorizadas, o primeiro
 argumento delas pode ter tanto uma única string quando um vetor de strings.
 
 ```{r}
-str_length(c("Um", "Dois", "Três ", "Quatro", "Cinco"))
+vetor_de_strings <- c("Um", "Dois", "Três ", "Quatro", "Cinco", "fisdhfjdfjkdsfkjdsfkjsdbfkhsdbfkhsdbdhfbsdfsfshf")
+
+length(vetor_de_strings)
+max(str_length(vetor_de_strings))
+
 ```
 
 --
 
-**EX:** Verifique como são contados caracteres escapados.
+**EX:** Verifique como são contados caracteres escapados (\alguma_coisa).
 
+```{r}
+v <- c("vou pular\numa linha", "\tdei tab antes dessa frase", "\n\t", "\t", "\u00BA")
+
+str_length(v)
+```
 
 
 ---
@@ -271,6 +310,7 @@ s <- "nAh uNIaUM xOvIeHtIkA, U MiGuXeixxXXxx ixXxKreVi vC"
 str_to_lower(s)
 str_to_upper(s)
 str_to_title(s)
+
 ```
 
 Agora o texto está muito mais compreensível!
@@ -287,11 +327,22 @@ um texto com espaços extras no início e no final, podemos recorrer à função
 
 ```{r}
 str_trim(c("M", "F", "F", " M", " F ", "M"))
+
+
+str_trim(c("       M   M    C", "F      "))
 ```
 
 --
 
 **EX:** Tabulações são consideradas espaços?
+
+```{r}
+v <- c("\tM   \nM    C", "F\n")
+v
+cat(v)
+str_trim(v)
+```
+
 
 --
 
@@ -299,14 +350,26 @@ Já a função `str_sub()` usa as posições dos caracteres nas strings para det
 o que remover:
 
 ```{r}
-str_sub(c("__SP__", "__MG__", "__RJ__"), start = 3, end = 4)
+df <- data.frame(texto = c("__SP__", "__MG__", "__RJ__")) %>%
+  mutate(uf = str_sub(texto, start = 3, end = 4))
+
+
+str_sub(c("__SP__", "__MG__", "__RJ__"), start = 3, end = 5)
 ```
 
 --
 
-**EX:** Teste `str_sub()` dando valor só para `start` ou só para `end`. O que
-acontece se passarmos números negativos para ambos os parâmetros?
+**EX:** Teste `str_sub()` dando valor só para `start` ou só para `end`.
 
+```{r}
+str_sub(c("__SP__", "__MG__", "__RJ__"), end = 5)
+```
+
+O que acontece se passarmos números negativos para ambos os parâmetros?
+
+```{r}
+str_sub(c("__SP__123", "__MG__", "__RJ__"), start = -3, end = -2)
+```
 
 
 ---
@@ -316,12 +379,22 @@ acontece se passarmos números negativos para ambos os parâmetros?
 Assim como temos `length()` e `str_length()`, temos `c()` e `str_c()`:
 
 ```{r}
+c("O valor p é: ", "0.03")[2]
 str_c("O valor p é: ", "0.03")
+sql: concat("O valor p é: ", "0.03")
+python: "O valor p é: " + "0.03"
+excel: CONCATENAR("O valor p é: "; "0.03")
 ```
 
 --
 
 **EX:** E se passássemos uma variável numérica para essa função?
+
+```{r}
+ifelse(is.na(NA), "(vazio)", "nao vazio")
+str_c("O valor p é: ", NA)
+```
+
 
 --
 
@@ -330,7 +403,13 @@ Vetorização também não é um problema para a `str_c()`:
 ```{r}
 s1 <- c("O R", "O Java")
 s2 <- c("bom", "ruim")
+
 str_c(s1, " é muito ", s2)
+
+"O R" +    " é muito " + "bom"
+"O Java" + " é muito " + "ruim"
+"O R" + " é muito " + "mais ou menos"
+
 ```
 
 --
@@ -338,7 +417,12 @@ str_c(s1, " é muito ", s2)
 **EX:** Use o argumento `sep` para remover a repetição de espaços. Use o argumento
 `collapse` para juntar as duas frases em uma.
 
+```{r}
+s1 <- c("O R", "O Java")
+s2 <- c("bom", "ruim")
 
+str_c(s1, " é muito ", s2, sep = "-", collapse = " ")
+```
 
 ---
 
@@ -380,8 +464,6 @@ class: inverse, center, middle
 
 # Regex
 
-
-
 ---
 
 # Expressões regulares
@@ -391,7 +473,14 @@ capturar padrões em strings. Veja um pequeno exemplo com a função `str_detect
 (que detecta se uma determinada string apresenta um certo padrão):
 
 ```{r}
-str_detect(c("banana", "BANANA", "maca", "nona"), pattern = "na")
+# operador .
+str_detect(c("banana", "BANANA", "maca", "nona"), pattern = "N.")
+
+# operador ^
+str_detect(c("banana", "BANANA", "maca", "nona", "bacana", "cabana"), pattern = "^b")
+
+# operador $
+str_detect(c("banana", "BANANA", "maca", "nona", "bacana", "cabana", "malee", "jacare "), pattern = "a.e$")
 ```
 
 --
@@ -405,9 +494,11 @@ o início de uma string e o final de uma string.
 --
 
 **EX:** Mude o valor do argumento `pattern` no código acima para que a
-expressão dê match com qualquer string que tenha como segunda letra um
-`a` minúsculo.
+expressão dê match com qualquer string que tenha como segunda letra um `a` minúsculo.
 
+```{r}
+str_detect(c("banana", "BANANA", "maca", "nona"), pattern = "$")
+```
 
 
 ---
@@ -423,13 +514,28 @@ escapar a barra e assim obter somente um ponto (concluíndo erroneamente que fal
 alguma coisa no padrão). Precisamos então escapar **duas vezes**!
 
 ```{r}
-str_detect(c("ba.ana", "BANA.A", "ma.a", "n.na"), pattern = "a\\.a")
+str_detect(c("ba$ana", "BANA.A", "ma.a", "n.na"), pattern = "a\\$a")
 ```
 
 --
 
 **EX:** Como faríamos para dar match em um padrão já escapado (como "\\\\.")?
 Dê match em um caractere de nova linha e em um caractere de tabulação.
+
+```{r}
+str_detect(c("\\."), pattern = "\\\\.")
+
+string = "\\."
+para o r: "\."
+
+pattern = "\\\\."
+
+"\\   \\."
+"\"   "\."
+
+"\."
+```
+
 
 --
 
@@ -448,7 +554,16 @@ vezes para um padrão se repetir. `+` indica que um padrão se repete uma ou mai
 se repete entre `m` e `n` vezes (variações importantes são `{m}`, `{,n}` e `{m,}`).
 
 ```{r}
-str_detect(c("oi", "oii", "oiii", "oiiii"), pattern = "oi{3,}e*")
++
+*
+{m,n}
+{m,}
+{,n}
+
+"oi{3,}e*"
+
+str_detect(c("oooooooi    ", "oii", "oiii", "oiiii", "oiiieiii"), 
+           pattern = "o{5,}")
 ```
 
 --
@@ -458,7 +573,10 @@ vai ser tratado como uma unidade indivisível; já colocando caracteres dentro d
 um `[]`, casamos com qualquer um deles.
 
 ```{r}
-str_detect(c("banana", "baNANA", "BAnana"), ".[Aa](na){2}")
+str_detect(c("banana", "baNAna", "BAnana", "B9nana"), ".[0-9](na){2}")
+
+_Anana
+_anana
 ```
 
 
@@ -469,13 +587,28 @@ str_detect(c("banana", "baNANA", "BAnana"), ".[Aa](na){2}")
 
 Alguns outros padrões de regex que podem se fazer úteis:
 
-- `[a-z]`, `[A-Z]` e `[0-9]` casam com letras minúsculas, letras maiúsculas e
+- `[abcdefghijklmnopqrstuvxz]`, `[a-z]`, `[A-Z]` e `[0-9]` casam com letras minúsculas, letras maiúsculas e
 números (é possível usá-los juntos)
-- `[^abc]` casa com qualquer coisa **menos** `a`, `b` e `c`
+- `[^abc0 ]` casa com qualquer coisa **menos** `a`, `b` e `c`
 - `a?` casa com 0 ou 1 `a`
 
 ```{r}
-str_detect(c("ba ana", "BANANA", "maca", "nona"), "[^Bn]a ?[ca]")
+v <- c("ba ana", "BANANA", "maca", "nona")
+
+v[str_detect(v, "[^Bn]a ?[ca]")]
+
+ifelse(str_detect(v, "[^Bn]a ?[ca]"), "OK", "Não encontrado")
+
+_a a <- "ba a"
+_a c
+_aa
+_ac <- "mac"
+
+
+na a
+na c
+naa
+nac
 ```
 
 --
@@ -490,7 +623,7 @@ seguir, que mostra todos os padrões que o `stringr` aceita:
 ```r
 ?stringi::stringi-search-regex
 ```
-
+https://www.rstudio.com/resources/cheatsheets/
 
 
 ---
@@ -503,7 +636,7 @@ seguir, que mostra todos os padrões que o `stringr` aceita:
 padrão casa
 - `[]` e `()` determinam conjuntos de padrões
 
---
+---
 
 ### Exercício
 
@@ -517,6 +650,22 @@ com as palavras que:
 **Dica:** Usem `str_view()` com `match = TRUE` para ver todas as palavras
 retornadas pelo matching.
 
+```{r}
+library(stringr)
+words
+
+# Começam com 3 consoantes
+words[str_detect(words, pattern = "^[^aeiou]{3}")]
+str_view(words, pattern = "^[^aeiou]{3}", match = TRUE)
+
+# Têm 3 ou mais vogais em sequência
+words[str_detect(words, pattern = "[aeiou]{3}")]
+str_view(c(words, "aeiou"), pattern = "[aeiou]{3}", match = TRUE)
+
+# Têm duas ou mais ocorrências onde uma vogal precede uma consoante
+words[str_detect(words, pattern = "([aeiou][^aeiou0-9]){2,}")]
+str_view(c(words, "aeiou"), pattern = "([aeiou][^aeiou]){2,}", match = TRUE)
+```
 
 
 ---
