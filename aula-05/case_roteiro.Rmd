@@ -1,0 +1,348 @@
+---
+title: "Case"
+author: "Curso R"
+date: "24 de janeiro de 2018"
+output: html_document
+---
+
+Adaptação do vídeo "Whole game", do Hadley, no Youtube: 
+
+https://www.youtube.com/watch?v=go5Au01Jrvs
+
+
+## Ilusão coletiva
+
+Nós fomos contratados pelo governo norte-americano para estudar a liberação de alvarás para construção de prédios residenciais.
+
+Nosso chefe  não sabe nada de análise de dados ou construção civil, um zero à esquerda. Ele jogou o banco de dados na nossa mão e falou "se vira aí!".
+
+```{r}
+chefe(1)
+```
+
+
+## Pacotes
+
+```{r}
+library(tidyverse)
+```
+
+## Importanto os dados
+
+```{r}
+alvaras <- read_csv("dataPermit_full.csv")
+alvaras
+
+alvaras <- read.csv("dataPermit_full.csv", na = "null")
+alvaras
+```
+
+Banco de dados: alvarás de construção civil nos EUA (jan/1980 ~ nov/2017)
+
+* area = local (área/região metropolitana)
+* data = mês/ano
+* f1 = casa de uma família, f24 = casa de 2 a 4 famílias, f5 = casa de 5 famílias ou mais
+* units = número de prédios, value = preço médio do prédio, change = variação (%) ao mesmo mês do ano anterior
+
+
+>> namorar os dados
+
+```{r}
+View(alvaras)
+```
+
+
+O dataset está ordenado pela data.
+Temos informação desde a década de 80. Como o volume de dados é muito grande, vamos filtrar o data.frame para pegar dados mais recentes.
+
+Precisamos primeiro criar a variável "ano".
+
+```{r}
+alvaras %>% 
+  separate(col = date, 
+           into = c("month", "year"), 
+           sep = "/")
+
+# Acrescentar o convert = TRUE
+
+alvaras %>% 
+  separate(col = date, 
+           into = c("month", "year"), 
+           sep = "/",
+           convert = TRUE)
+
+# Filtrar
+
+alvaras %>% 
+  separate(col = date, 
+           into = c("month", "year"), 
+           sep = "/",
+           convert = TRUE) %>%
+  filter(year > 2007)
+
+# As variáveis "change" foram computadas por outra pessoa. Elas podem estar corretas, mas a gente sempre quer ter certeza. Então vamos nos livrar delas.
+
+alvaras %>% 
+  separate(col = date, 
+           into = c("month", "year"), 
+           sep = "/",
+           convert = TRUE) %>%
+  filter(year > 2007) %>% 
+  select(-ends_with("change"))
+
+# gravar num objeto
+
+alvaras_10_anos <- alvaras %>% 
+  separate(col = date, 
+           into = c("month", "year"), 
+           sep = "/",
+           convert = TRUE) %>%
+  filter(year > 2007) %>% 
+  select(-ends_with("change"))
+  
+```
+
+
+## Descritiva
+
+Vamos entender melhor os dados.
+
+Cada linha do banco representa um relatório mensal de uma localidade específica. Será que temos os dados completos (o relatório de todos os meses nesse período) de cada localidade?
+
+```{r}
+# Número de relatórios por ano
+alvaras_10_anos %>% count(year)
+
+# Número de relatórios por área
+alvaras_10_anos %>% count(area)
+
+# Contando a própria contagem por área para vefiricar quantas áreas não têm relatórios em todos os meses
+alvaras_10_anos %>% count(area) %>% count(n)
+```
+
+Vamos focar o trabalho em casas com uma família (f1units).
+
+Primeiro, vamos começar com um gráfico do número de alvarás ao longo do tempo.
+
+```{r}
+
+# Podemos criar a variável "date" como um variável numérica
+
+alvaras_10_anos %>% 
+  mutate(date = year + (month - 1) / 12)
+
+alvaras_10_anos %>% 
+  mutate(date = year + (month - 1) / 12) %>% 
+ggplot(aes(date, f1units)) +
+  geom_point()
+
+# Podemos tbm criar a variável "date" como uma data.
+
+alvaras_10_anos %>% 
+  mutate(date = stringr::str_c("01", month, year, sep = "-") %>%
+           lubridate::dmy())
+
+alvaras_10_anos %>% 
+  mutate(date = stringr::str_c("01", month, year, sep = "-") %>%
+           lubridate::dmy()) %>% 
+  ggplot(aes(date, f1units)) +
+  geom_point()
+
+chefe(8)
+
+# O gráfico não é muito útil porque a maior parte dos dados está nesse emaranhado de pontos na parte de baixo.
+
+# Como vamos usar a variável date mais vezes, vamos criá-la no objeto alvaras.
+
+alvaras_10_anos <- alvaras_10_anos %>% 
+  mutate(date = stringr::str_c("01", month, year, sep = "-") %>%
+           lubridate::dmy())
+
+# Gráfico de linhas
+  
+alvaras_10_anos %>% 
+  mutate(date = stringr::str_c("01", month, year, sep = "-") %>%
+           lubridate::dmy()) %>% 
+  ggplot(aes(date, f1units, group = area)) +
+  geom_line()
+
+# Podemos ver algumas cidades grandes, mas a maior parte dos dados está nessa massa preta na parte de baixo.
+```
+
+Como o volume de dados ainda está muito grande, vamos focar agora nas cidades grandes.
+
+Mas quais são as cidades grandes?
+
+```{r}
+alvaras_10_anos
+
+# A gente pode agregar informações de área e população, mas isso pode dar muito trabalho. E não queremos ficar pedindo coisas para o nosso chefe.
+
+chefe(33)
+
+# Vamos usar a própria informação de número de alvarás para definir as grandes cidades.
+
+alvaras_10_anos %>% 
+  group_by(area) %>% 
+  summarise(mean = mean(f1units)) %>% 
+  arrange(desc(mean))
+
+# Podemos fazer um histograma para avaliar a distribuição do número médio de alvarás
+
+alvaras_10_anos %>% 
+  group_by(area) %>% 
+  summarise(mean = mean(f1units)) %>% 
+  ggplot() +
+  geom_histogram(aes(x = mean), binwidth = 100)
+
+# Vamos pegar as cidades com número de alvarás médio por mês maior que 100.
+
+alvaras_10_anos %>% 
+  group_by(area) %>% 
+  summarise(mean = mean(f1units)) %>% 
+  arrange(desc(mean)) %>% 
+  filter(mean > 100)
+
+# Vamos filtrar os dados para essas cidades grandes. 
+
+# O semi_join() retorna todas as linhas de x que são matches com os valores de y, mantendo apenas as colunas de x.
+
+maiores_cidades <- alvaras_10_anos %>% 
+  group_by(area) %>% 
+  summarise(mean = mean(f1units)) %>% 
+  arrange(desc(mean)) %>% 
+  filter(mean > 100)
+
+alvaras_10_anos %>%
+  semi_join(maiores_cidades, by = "area")
+
+alvaras_10_anos_maiores <- alvaras_10_anos %>%
+  semi_join(maiores_cidades, by = "area")
+
+```
+
+Vamos refazer os gráficos.
+
+```{r}
+ alvaras_10_anos_maiores %>% 
+  ggplot(aes(date, f1units, group = area)) +
+  geom_line()
+
+# Melhorou um pooouco, mas ainda está ruim de ver o que está acontecendo.
+
+chefe(42)
+
+# Se reduzir a dimensão dos dados não ajudou, vamos tentar melhorar a nossa visualização.
+
+# Transparência
+
+alvaras_10_anos_maiores %>% 
+  ggplot(aes(date, f1units, group = area)) +
+  geom_line(alpha = 1/8)
+
+# Escala log: útil para quando a distribuição dos dados 
+
+alvaras_10_anos_maiores %>% 
+  ggplot(aes(date, f1units, group = area)) +
+  geom_line(alpha = 1/8) +
+  scale_y_log10()
+
+# Parece haver um padrão comum em cada mês, assim como uma tendência comum de longo termo.
+
+alvaras_10_anos_maiores %>% 
+  ggplot(aes(date, f1units)) +
+  geom_line(aes(group = area), alpha = 1/8) +
+  scale_y_log10() +
+  geom_smooth(se = FALSE)
+
+chefe(108)
+```
+
+
+```{r}
+
+# Nosso chefe tem uma ideia:
+
+chefe(111)
+
+# Comparar as séries das maiores cidades do Texas e de NY
+
+alvaras_10_anos
+
+alvaras_10_anos %>% 
+  filter(stringr::str_detect(area, ", NY|, TX"))
+
+alvaras_10_anos %>% 
+  mutate(state = case_when(
+    stringr::str_detect(area, ", NY") ~ "NY",
+    stringr::str_detect(area, ", TX") ~ "TX",
+    TRUE ~ "Outro"
+  ))
+
+alvaras_10_anos %>% 
+  mutate(state = case_when(
+    stringr::str_detect(area, ", NY") ~ "NY",
+    stringr::str_detect(area, ", TX") ~ "TX",
+    TRUE ~ "Outro"
+  )) %>%
+  mutate(f1units = f1units) %>% 
+  filter(state %in% c("NY", "TX")) %>% 
+  ggplot(aes(date, f1units)) +
+  geom_line(aes(group = area), alpha = 1/8) +
+  facet_wrap(~state) +
+  scale_y_log10() +
+  geom_smooth(se = FALSE)
+
+# Interpretar apesar do problema com linhas removidas.
+
+# log(0) = -Inf
+
+# Muitas regiões com zeros.
+
+alvaras_10_anos %>% 
+  filter(stringr::str_detect(area, ", NY") & f1units == 0)
+
+# Rodar gráfico sem a transformação log
+
+alvaras_10_anos %>% 
+  mutate(state = case_when(
+    stringr::str_detect(area, ", NY") ~ "NY",
+    stringr::str_detect(area, ", TX") ~ "TX",
+    TRUE ~ "Outro"
+  )) %>%
+  filter(state %in% c("NY", "TX")) %>% 
+  ggplot(aes(date, f1units)) +
+  geom_line(aes(group = area), alpha = 1/8) +
+  facet_wrap(~state) +
+  geom_smooth(se = FALSE)
+
+# Rodar gráfico transformando a variável
+
+alvaras_10_anos %>% 
+  mutate(state = case_when(
+    stringr::str_detect(area, ", NY") ~ "NY",
+    stringr::str_detect(area, ", TX") ~ "TX",
+    TRUE ~ "Outro"
+  )) %>%
+  mutate(f1units = f1units + 1) %>% 
+  filter(state %in% c("NY", "TX")) %>% 
+  ggplot(aes(date, f1units)) +
+  geom_line(aes(group = area), alpha = 1/8) +
+  facet_wrap(~state) +
+  scale_y_log10() +
+  geom_smooth(se = FALSE)
+
+chefe(333)
+
+```
+
+
+- Desafio
+
+- Tem uma lista de exercícios para quem não quiser ficar pensando muito. Não abrir para não influenciar quem quiser ser criativo.
+
+- Recadinhos
+    - certificado
+    - site/blog
+    - workshop web scraping (10 de março)
+    - agradecer

@@ -1,0 +1,23 @@
+---
+title: "Exercícios"
+author: "Curso R"
+date: "24 de janeiro de 2018"
+output: html_document
+---
+
+> 1. Qual era o comportamento das séries antes da crise de 2008? Analise os dados de 2000 a 2017.
+
+> 2. Analise os dados para as "cidades pequenas" (número de alvarás médio <= 100).
+
+> 3. Analise o valor médio das construções ao longo do tempo.
+
+> 4. Analise a série do número de alvarás para casas de 2 a 4 famílias ou a de 5 ou mais famílias.
+
+> 5. Recalcule os valores das variáveis "change", lembrando que
+
+```{r}
+var_change_jan_2010 = (var_jan_2010/var_jan_2009 - 1)*100 
+```
+
+
+

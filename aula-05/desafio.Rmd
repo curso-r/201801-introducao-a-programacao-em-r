@@ -1,0 +1,22 @@
+---
+title: "Desafio"
+author: "Curso R"
+date: "24 de janeiro de 2018"
+output: html_document
+---
+
+```{r}
+chefe(123)
+```
+
+
+>> Continue a análise adicionando a sua criatividade ao problema: analise outras variáveis, filtre os dados de outras maneiras, experimente outros tipos de gráficos...
+
+Coloque a mão na massa!
+
+## Libraries 
+
+```{r}
+
+```
+

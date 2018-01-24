@@ -1,0 +1,9 @@
+Banco de dados:
+
+* area = local (área/região metropolitana)
+
+* data = mês/ano
+
+* f1 = casa de uma família, f24 = casa de 2 a 4 famílias, f5 = casa de 5 famílias ou mais
+
+* units = número de prédios, value = preço médio do prédio, change = variação (%) ao mesmo mês do ano anterior

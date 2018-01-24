@@ -1,0 +1,32 @@
+---
+title: "Case"
+author: "Curso R"
+date: "24 de janeiro de 2018"
+output: html_document
+---
+
+
+
+
+
+>>> Adaptação do vídeo "Whole game", do Hadley, no Youtube: 
+
+>>> https://www.youtube.com/watch?v=go5Au01Jrvs
+
+
+
+
+ 
+## Ilusão coletiva
+
+Nós fomos contratados pelo governo norte-americano para estudar a liberação de alvarás para construção de prédios residenciais.
+
+Nosso chefe  não sabe nada de análise de dados ou construção civil, um zero à esquerda. Ele jogou o banco de dados na nossa mão e falou "se vira aí!".
+
+```{r}
+
+```
+
+
+
+
