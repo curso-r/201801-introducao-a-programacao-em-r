@@ -75,7 +75,16 @@ mpg %>%
 # size = cyl
 # shape 
 
+mpg %>% 
+  ggplot() +
+  geom_point(mapping = aes(x = displ, y = hwy, color = cty, size = cyl))
+
 # geom_line()
+
+mpg %>% 
+  ggplot(aes(x = displ, y = hwy)) +
+  geom_point() +
+  geom_line()
 
 # color = cyl
 # color = fl
@@ -234,9 +243,6 @@ dados1 <- dados %>%
 # fct_other
 dados %>%
   na.omit() %>% 
-  
-  mutate(country = fct_infreq(country, ordered = TRUE)) %>%
-  
   mutate(country = fct_other(country, drop = dados1$country, other_level = 'Outros')) %>% 
   
   ggplot() +
@@ -258,19 +264,35 @@ dados %>%
 
 dados %>%
   na.omit() %>% 
-  
-    mutate(content_rating = fct_infreq(content_rating, ordered = TRUE)) %>% 
-  
-    mutate(content_rating = fct_collapse(content_rating, Abacaxi = c("Approved", "G", "GP", "Passed","TV-14", "TV-G", "TV-MA", "TV-PG", "TV-Y7", "X"), Chocolate = c('M', 'NC-17', 'Unrated'))) %>%
+    mutate(content_rating = fct_collapse(content_rating, 
+                                         Abacaxi = c("Approved", "G", "GP", "Passed","TV-14",
+                                                     "TV-G", "TV-MA", "TV-PG", "TV-Y7", "X"), 
+                                         Chocolate = c('M', 'NC-17', 'Unrated'))) %>%
 
-  
-  ggplot() +
-  geom_bar(mapping = aes(x = content_rating))
 ```
 
 ```{r}
 # fct_infreq
 # mutate(country = fct_infreq(country, ordered = TRUE)) %>% 
+
+dados %>%
+  na.omit() %>% 
+  mutate(country = fct_infreq(country, ordered = TRUE)) %>%
+  mutate(country = fct_other(country, drop = dados1$country, other_level = 'Outros')) %>% 
+  ggplot() +
+  geom_bar(mapping = aes(x = country))
+
+---
+
+dados %>%
+  na.omit() %>% 
+  mutate(content_rating = fct_collapse(content_rating, 
+                                         Abacaxi = c("Approved", "G", "GP", "Passed","TV-14",
+                                                     "TV-G", "TV-MA", "TV-PG", "TV-Y7", "X"), 
+                                         Chocolate = c('M', 'NC-17', 'Unrated'))) %>%
+  mutate(content_rating = fct_infreq(content_rating, ordered = TRUE)) %>% 
+  ggplot() +
+  geom_bar(mapping = aes(x = content_rating))
 ```
 
 
@@ -335,8 +357,8 @@ ggplot(mtcars) +
   ggtitle("Mtcars plot", subtitle = "R base dataset") +
   ylim(c(0,35))
 
-#   xlim(c(0,5))
-#  ylim(c(0,35))
+# xlim(c(0,5))
+# ylim(c(0,35))
 ```
 
 Legenda.
@@ -396,7 +418,7 @@ Passo a passo:
 ```
 
  
-## Exercício 2
+## Exercício 2 (respostas no final)
 
 Fazer um gráfico de dispersão da nota recebida no IMDB (imdb_score) contra o orçamento (budget) para os filmes americanos lançados depois de 2000 (inclusive).
 
