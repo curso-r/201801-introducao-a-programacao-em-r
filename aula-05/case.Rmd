@@ -194,8 +194,6 @@ alvaras_10_anos_maiores %>%
 
 # Melhorou um pooouco, mas ainda está ruim de ver o que está acontecendo.
 
-chefe(42)
-
 # Se reduzir a dimensão dos dados não ajudou, vamos tentar melhorar a nossa visualização.
 
 # Transparência
